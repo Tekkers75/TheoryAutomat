@@ -96,6 +96,7 @@ public:
 				if ((pos > findPos || pos == -1) && findPos != -1)
 				{
 					pos = findPos;
+					break;
 				}
 
 			}
@@ -129,12 +130,88 @@ public:
 			size_t p = result.find(r.getKey());
 			result = result.erase(p, r.getKey().length());
 			result = result.insert(p, r.getValue());
+			cout << result << endl;
 
 			count++;
 		}
 
 		return result;
 	}
+
+
+	string OutputLeft(vector<string>& transformations)
+	{
+		transformations.clear();
+		string result = "S";
+		int count = 0;
+
+		while (count < MaxRepetitionsCount)
+		{
+			size_t pos = string::npos;
+
+			// найдем крайний левый нетерминальный символ в цепочке
+			for (const Rule& rule : _rules)
+			{
+				string key = rule.getKey();
+				size_t findPos = result.find(key);
+				if ((pos > findPos || pos == string::npos) && findPos != string::npos)
+				{
+					pos = findPos;
+					break;
+				}
+			}
+			// если не найдено ниодного подходящего правила - выходим
+			if (pos == string::npos)
+			{
+				break;
+			}
+			// для правого
+			// найдем все правила подходящие для крайнего левого нетерминального символа
+			std::vector<Rule> rules_;
+			for (const Rule& rule : _rules) {
+				std::string key = rule.getKey();
+				if (pos == result.find(key)) {
+					rules_.push_back(rule);
+				}
+			}
+
+			std::random_device rd;
+			std::mt19937 gen(rd());
+			std::uniform_int_distribution<> dis(0, rules_.size() - 1);
+			int index = dis(gen);
+			Rule r = rules_[index];
+
+			size_t p = result.find(r.getKey());
+			result.replace(p, r.getKey().length(), r.getValue());
+			//cout << result << endl;
+			transformations.push_back(/*"( " + r.getKey() + " --> " + r.getValue() + " ): "*/ /*+*/ result);
+			count++;
+		}
+		return result;
+	}
+
+	string Transformations(string chain_) {
+		string buf;
+		string result;
+		vector<string> transformations;
+		bool found = false;
+		int counter = 0;
+		while (!found) {
+			buf = this->OutputLeft(transformations);
+			counter++;
+			if (counter == 10000000) return "Цепочка не построена. Попробуйте ещё раз\n";
+			if (buf == chain_) found = true;
+		}
+
+		for (int i = 0; i < transformations.size(); i++)
+		{
+			result += transformations[i] + "\n";
+		}
+		result.insert(0, "Начальный символ: S\n");
+
+		return result;
+	}
+
 
 	/// Переводит строку на формальный язык
 	/// "text" - Строка для перевода
@@ -164,6 +241,7 @@ public:
 						if (CheckLoop(text, rule)) rule.setIsLooped(true);
 						else
 						{
+							cout << text << endl;
 							text = text.erase(pos, key.length());
 							text = text.insert(pos, value);
 							isEnd = false;
