@@ -1,0 +1,29 @@
+# Пример кода на языке Julia
+
+function add(a, b)
+    # Сложение двух чисел
+
+    return a + b
+end
+
+#= 
+Функция, вычисляющая факториал числа
+С использованием рекурсии
+=#
+
+
+function factorial(n)
+    if n == 0 || n == 1
+        return 1
+    else
+        return n * factorial(n - 1)
+    end
+end
+
+# Вычисление суммы и факториала числа 5
+result1 = add(2, 3)
+result2 = factorial(5)
+println("Сумма: ", result1)
+println("Факториал: ", result2)
+
+
